@@ -49,7 +49,7 @@ async def health_check():
 if __name__ == "__main__":
     import os
 
-    PORT = int(os.environ.get("PORT", 8080))
+    PORT = int(os.environ.get("PORT", 10000))
 
     print("\n" + "=" * 80)
     print("PLAYBOOK AI - SALES INTELLIGENCE API SERVER")
@@ -60,8 +60,9 @@ if __name__ == "__main__":
 
     agent_os.serve(
         app="serve:app",
+        host="0.0.0.0",
+        port=PORT,
         reload=False,
-        port=PORT
     )
 
  
