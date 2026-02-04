@@ -3,6 +3,9 @@
 # Core Framework
 agno>=2.0.0
 
+# Auth (required by agno middleware)
+PyJWT>=2.8.0
+
 # Web Scraping
 firecrawl-py>=1.0.0
 
