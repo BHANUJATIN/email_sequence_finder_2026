@@ -13,6 +13,8 @@ import json
 import traceback
 from datetime import datetime
 from difflib import SequenceMatcher
+import os
+import requests
 
 
 def find_matching_persona(persona_title: str, all_personas: list, threshold: float = 0.7) -> dict:
@@ -372,6 +374,21 @@ Include exact talk tracks.
         return create_error_response(f"Error generating battle cards: {str(e)}")
 
 
+def send_playbook_to_webhook(prospect_domain, playbook):
+    webhook_url = os.getenv("PLAYBOOK_WEBHOOK_URL")
+    if not webhook_url:
+        return
+
+    payload = {
+        "prospect_domain": prospect_domain,
+        "data": playbook
+    }
+
+    try:
+        requests.post(webhook_url, json=payload, timeout=10)
+    except Exception as e:
+        print(f"⚠️ Webhook send failed: {e}")
+        
 def assemble_final_playbook(step_input: StepInput) -> StepOutput:
     """
     Step 8e: Assemble all playbook components into final deliverable
@@ -413,6 +430,8 @@ def assemble_final_playbook(step_input: StepInput) -> StepOutput:
             "talk_tracks": talk_tracks_data.get("talk_tracks", []) if talk_tracks_data else [],
             "battle_cards": battle_cards_data.get("battle_cards", []) if battle_cards_data else []
         }
+        if final_playbook:
+            send_playbook_to_webhook(step_input.input.prospect_domain, final_playbook)
 
         print(f"\n🎉 PLAYBOOK GENERATION COMPLETE!")
         print(f"=" * 60)

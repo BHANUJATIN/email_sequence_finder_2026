@@ -53,6 +53,7 @@ if __name__ == "__main__":
 
     print("\n" + "=" * 80)
     print("PLAYBOOK AI - SALES INTELLIGENCE API SERVER")
+    print("PLAYBOOK_WEBHOOK_URL =", os.getenv("PLAYBOOK_WEBHOOK_URL"))
     print("=" * 80)
     print("\nStarting AgentOS API Server...")
     print(f"\nAPI running on port {PORT}")

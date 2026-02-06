@@ -22,6 +22,7 @@ import time
 from datetime import datetime, timedelta
 from agno.workflow import Workflow, Step, Parallel
 from models.workflow_input import WorkflowInput
+import requests
 
 # Import Phase 1 step executors
 from steps.step1_domain_validation import validate_vendor_domain, validate_prospect_domain
@@ -138,6 +139,22 @@ workflow = Workflow(
         Step(name="assemble_final_playbook", executor=assemble_final_playbook)
     ]
 )
+
+def send_playbook_to_webhook(prospect_domain: str, playbook: dict):
+    webhook_url = os.getenv("PLAYBOOK_WEBHOOK_URL")
+    print("PLAYBOOK_WEBHOOK_URL =", os.getenv("PLAYBOOK_WEBHOOK_URL"))
+    if not webhook_url:
+        return  # webhook is optional, do nothing if not set
+
+    payload = {
+        "prospect_domain": prospect_domain,
+        "data": playbook
+    }
+
+    try:
+        requests.post(webhook_url, json=payload, timeout=10)
+    except Exception as e:
+        print(f"⚠️ Failed to send playbook webhook: {e}")
 
 
 def main():
@@ -351,7 +368,8 @@ def main():
 
         with open(f"{run_dir}/playbook.json", "w") as f:
             json.dump(playbook, f, indent=2)
-
+        if playbook:
+            send_playbook_to_webhook(prospect_domain, playbook)
         # 4. Enhanced Metadata
 
         metadata = {
